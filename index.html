@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Management System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+    <nav class="top-nav">
+        <div class="nav-content">
+            <div class="logo">
+                <img src="logo.png" alt="Logo" />
+              </div>
+            <h1>InvoMate</h1>
+            <div class="nav-controls">
+                <button id="darkModeToggle" class="icon-button">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button id="loadExcel" class="primary-button">
+                    <i class="fas fa-file-excel"></i> Load Invoices
+                </button>
+                <input type="file" id="excelFile" accept=".xlsx" style="display: none;">
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="tabs">
+            <button class="tab-button active" data-tab="newInvoice">
+                <i class="fas fa-plus"></i> New Invoice
+            </button>
+            <button class="tab-button" data-tab="invoiceList">
+                <i class="fas fa-list"></i> Invoice List
+            </button>
+        </div>
+
+        <div id="newInvoice" class="tab-content active">
+            <form id="invoiceForm" class="invoice-form">
+                <div class="form-grid">
+                    <div class="business-info card">
+                        <div class="card-header">
+                            <h2><i class="fas fa-building"></i> Business Information</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="logo-upload">
+                                <label for="logoInput" class="logo-label">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    <span>Upload Logo</span>
+                                </label>
+                                <input type="file" id="logoInput" accept="image/*">
+                                <img id="logoPreview" style="display: none;" alt="Logo Preview">
+                            </div>
+                            <div class="input-group">
+                                <label for="businessName">Business Name</label>
+                                <input type="text" id="businessName" placeholder="Enter business name">
+                            </div>
+                            <div class="input-group">
+                                <label for="businessAddress">Address</label>
+                                <textarea id="businessAddress" placeholder="Enter business address"></textarea>
+                            </div>
+                            <div class="input-group">
+                                <label for="businessContact">Contact</label>
+                                <input type="text" id="businessContact" placeholder="Phone, Email">
+                            </div>
+                            <div class="input-group">
+                                <label for="taxId">Tax ID</label>
+                                <input type="text" id="taxId" placeholder="Enter tax ID">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="client-info card">
+                        <div class="card-header">
+                            <h2><i class="fas fa-user"></i> Client Information</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="input-group">
+                                <label for="clientName">Client Name</label>
+                                <input type="text" id="clientName" required placeholder="Enter client name">
+                            </div>
+                            <div class="input-group">
+                                <label for="clientAddress">Client Address</label>
+                                <textarea id="clientAddress" required placeholder="Enter client address"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="invoice-details card">
+                        <div class="card-header">
+                            <h2><i class="fas fa-file-invoice"></i> Invoice Details</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="details-grid">
+                                <div class="input-group">
+                                    <label for="invoiceNumber">Invoice Number</label>
+                                    <input type="text" id="invoiceNumber" readonly>
+                                </div>
+                                <div class="input-group">
+                                    <label for="invoiceDate">Date</label>
+                                    <input type="date" id="invoiceDate" required>
+                                </div>
+                                <div class="input-group">
+                                    <label for="paymentTerms">Payment Terms</label>
+                                    <select id="paymentTerms">
+                                        <option value="immediate">Due Immediately</option>
+                                        <option value="15">Net 15</option>
+                                        <option value="30">Net 30</option>
+                                        <option value="60">Net 60</option>
+                                    </select>
+                                </div>
+                                <div class="input-group">
+                                    <label for="currency">Currency</label>
+                                    <select id="currency">
+                                        <option value="USD">USD ($)</option>
+                                        <option value="EUR">EUR (€)</option>
+                                        <option value="GBP">GBP (£)</option>
+                                        <option value="INR">INR (₹)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="line-items card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-list"></i> Line Items</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table id="itemsTable" class="items-table">
+                                <thead>
+                                    <tr>
+                                        <th>Description</th>
+                                        <th>Quantity</th>
+                                        <th>Rate</th>
+                                        <th>Amount</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="itemsBody"></tbody>
+                            </table>
+                        </div>
+                        <button type="button" id="addItem" class="add-item-button">
+                            <i class="fas fa-plus"></i> Add Item
+                        </button>
+                    </div>
+                </div>
+
+                <div class="calculations-container">
+                    <div class="calculations card">
+                        <div class="card-header">
+                            <h2><i class="fas fa-calculator"></i> Summary</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="calc-row">
+                                <label>Subtotal:</label>
+                                <span id="subtotal">0.00</span>
+                            </div>
+                            <div class="calc-row">
+                                <label>Tax (%):</label>
+                                <div class="calc-input">
+                                    <input type="number" id="taxRate" value="0" min="0" max="100">
+                                    <span id="taxAmount">0.00</span>
+                                </div>
+                            </div>
+                            <div class="calc-row">
+                                <label>Discount (%):</label>
+                                <div class="calc-input">
+                                    <input type="number" id="discountRate" value="0" min="0" max="100">
+                                    <span id="discountAmount">0.00</span>
+                                </div>
+                            </div>
+                            <div class="calc-row total">
+                                <label>Total:</label>
+                                <span id="total">0.00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="footer card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-info-circle"></i> Additional Information</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="footer-grid">
+                            <div class="input-group">
+                                <label for="notes">Notes</label>
+                                <textarea id="notes" placeholder="Additional notes"></textarea>
+                            </div>
+                            <div class="input-group">
+                                <label for="terms">Terms and Conditions</label>
+                                <textarea id="terms" placeholder="Terms and conditions"></textarea>
+                            </div>
+                            <div class="input-group">
+                                <label for="bankDetails">Payment Details</label>
+                                <textarea id="bankDetails" placeholder="Bank account details"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button type="button" id="generateInvoiceBtn" class="primary-button">
+                        <i class="fas fa-file-invoice"></i> Generate Invoice
+                    </button>
+                    <button type="button" id="downloadPdfBtn" class="secondary-button">
+                        <i class="fas fa-download"></i> Download PDF
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div id="invoiceList" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-history"></i> Previous Invoices</h2>
+                    <div class="search-container">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" id="searchInvoice" placeholder="Search invoices...">
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="actions" style="margin-bottom: 1em;">
+                        <button type="button" id="exportAllBtn" class="secondary-button">
+                            <i class="fas fa-file-excel"></i> Export All Invoices
+                        </button>
+                    </div>
+                    <div class="table-responsive">
+                        <table id="invoicesTable" class="invoices-table">
+                            <thead>
+                                <tr>
+                                    <th>Invoice #</th>
+                                    <th>Date</th>
+                                    <th>Client</th>
+                                    <th>Summary</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="invoicesBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
