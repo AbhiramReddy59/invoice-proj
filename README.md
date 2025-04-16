@@ -21,8 +21,8 @@ A modern, browser-based Invoice Management System for small businesses and freel
 ## 🖥️ Getting Started
 1. **Clone this repo:**
    ```sh
-   git clone <your-repo-url>
-   cd app invoice proj
+   git clone https://github.com/AbhiramReddy59/invoice-proj.git
+   cd app invoice-proj
    ```
 2. **Run locally:**
    ```sh
@@ -33,12 +33,8 @@ A modern, browser-based Invoice Management System for small businesses and freel
    Visit [http://localhost:8000](http://localhost:8000)
 
 ## 🌐 Deployment
-- Deploy easily to Netlify, Vercel, or GitHub Pages.
-- For Netlify, just drag and drop the folder, or use the Netlify CLI:
-  ```sh
-  netlify deploy --prod
-  ```
+- https://invoice-proj.netlify.app/
 
 ## ⚠️ Security Note
-- All data is stored in your browser (localStorage). For sensitive or multi-user data, consider adding a backend.
+- All data is stored in your browser (localStorage)
 
