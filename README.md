@@ -42,9 +42,3 @@ A modern, browser-based Invoice Management System for small businesses and freel
 ## ⚠️ Security Note
 - All data is stored in your browser (localStorage). For sensitive or multi-user data, consider adding a backend.
 
-## 📄 License
-MIT
-
----
-
-**Made with ❤️ for modern invoicing!**
