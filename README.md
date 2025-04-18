@@ -39,5 +39,5 @@ A modern, browser-based Invoice Management System for small businesses and freel
 - All data is stored in your browser (localStorage)
 
 # Mobile Based Application
-app-apk-67ff7e8343ad4-1744797315.apk - for android version
-app-ipa-67ff80f025cfc-1744797936.ipa - for ios version
+- app-apk-67ff7e8343ad4-1744797315.apk - for android version
+- app-ipa-67ff80f025cfc-1744797936.ipa - for ios version
